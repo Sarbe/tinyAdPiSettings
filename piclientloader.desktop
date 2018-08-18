@@ -1,0 +1,6 @@
+[Desktop Entry]
+Comment=kweb when pi starts
+Exec=/home/pi/piclient/scripts/kweb.sh
+Icon=/Path/to/Your/application/Icon/IconName
+Name=piclientpage
+Type=Application

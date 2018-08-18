@@ -1,0 +1,6 @@
+http://localhost:8080/PiClient/pages/showImg.jsp
+http://localhost:8080/PiClient/pages/start.jsp
+
+P@ssw0rd
+
+~!@#$%^&*()|}{":?><
