@@ -1,0 +1,182 @@
+
+1.	Create a new user
+sudo adduser <usrname>
+sudo adduser cdrom -> to add to cdrom group
+type visudo to edit /etc/sudoers  file.
+Create similar entry as pi for the new user
+
+TO remove user and home dir
+userdel -r
+2.	Install required software
+a.	java
+b.	Tomcat
+i.	Install apache 
+Get software wget http://redrockdigimark.com/apachemirror/tomcat/tomcat-8/v8.5.8/bin/apache-tomcat-8.5.8.tar.gz
+Unzip it ->  tar -zxvf apache-tomcat-8.5.8.tar.gz
+ii.	Set CATLINA_HOME
+
+c.	KWeb
+wget http://steinerdatenbank.de/software/kweb-1.7.5.tar.gz
+tar -xzf kweb-1.7.5.tar.gz
+cd kweb-1.7.5
+./debinstall
+
+You can also remove it any time with:
+sudo dpkg -r kweb
+
+sudo apt-get install xterm
+
+Minimum requirements are:
+omxplayer, youtube-dl, wget, mupdf or xpdf, leafpad, lxterminal
+
+d.	Omxplayer
+Comes with kweb
+e.	Matchbox manager
+f.	Youtubedl/server
+g.	GIT
+3.	Create Folder structure under home dir /home/pi
+a.	Folder : piclient
+           
+                      
+
+b.	Folder : Additional file under home directory
+i.	Kweb1.sh
+#!/bin/sh
+export DISPLAY=:0.0
+kweb -KHCUAJ+-zbhrqfpoklgtjneduwxyavcsmi#?!., http://localhost:8080/PiClient/pages/showImg.jsp & > /dev/null
+while true; do
+sleep 5m
+WID=$(xdotool search --onlyvisible --class kweb)
+xdotool windowactivate $WID key alt+r
+done
+
+
+4.	Install application
+a.	PiClient.war
+b.	PiClientMedia.war
+5.	Set all startup settings
+a.	Set environment as “PI”
+
+b.	Autostart kweb
+
+There are lots of place from where the page can be auto started.
+i.	/etc/profile : issues: loads too early, tomcat server is yet to be started (Not useful for us)
+ii.	~./bashrc-> .bach_aliases : issue- corrupts terminal, always VM starts when loaded. (not useful for us)
+
+iii.	Method 1: Modify /home/pi/.config/lxsession/LXDE-pi/autostart as below
+
+echo "Kiosk Running"
+@lxpanel --profile LXDE-pi
+@pcmanfm --desktop --profile LXDE-pi
+# @xscreensaver -no-splash // commented out
+xset -dpms
+xset s off
+@./kiosk
+
+Create Kiosk  file(kweb.sh) under home directory (/home/pi)
+kiosk
+#!/bin/sh
+export DISPLAY=:0.0
+kweb -JKAEr https://web site address & > /dev/null
+while true; do
+sleep 5m
+WID=$(xdotool search --onlyvisible --class kweb)
+xdotool windowactivate $WID key alt+r
+done
+
+i.	Method 2 : 
+Craete a file with .desktop extension under /home/pi/.config /autostart folder
+Put content like below
+[Desktop Entry]
+Comment=kweb when pi starts
+Exec=/home/pi/piclient/scripts/kweb.sh
+Icon=/Path/to/Your/application/Icon/IconName
+Name=piclientpage
+Type=Application
+
+
+c.	Disable Screen Sleep
+Force the screen to stay on
+
+sudo nano /etc/lightdm/lightdm.conf
+Add the following lines to the [SeatDefaults] section:
+
+# don't sleep the screen
+xserver-command=X -s 0 dpms
+
+
+d.	To hide the mouse cursor on inactivity
+
+sudo apt- get install unclutter
+
+e.	Turning Off Screen saver
+
+sudo nano /etc/xdg/lxsession/LXDE/autostart
+sudo nano /etc/xdg/lxsession/LXDE-pi/autostart
+Comment out the screensaver line, e.g.:
+
+@lxpanel --profile LXDE-pi
+@pcmanfm --desktop --profile LXDE-pi
+#@xscreensaver -no-splash
+@sh ${HOME}/.config/lxsession/LXDE-pi/autokey.sh
+
+Then add these lines:
+
+#Disable screensaver:
+@xset s noblank 
+@xset s off 
+@xset -dpms
+
+Now edit config
+sudo nano /etc/kbd/config
+Find the following lines and set the values accordingly:
+
+BLANK_TIME=0
+BLANK_DPMS=off
+POWERDOWN_TIME=0
+
+
+f.	Static IP address
+
+sudo nano /etc/dhcpcd.conf
+Scroll all the way to the bottom of the file and add one, or both of the following snippets. Depending on whether you want to set a static IP address for a wired connection or a wireless connection eth0 = wired, wlan0 = wireless.
+
+interface eth0
+
+static ip_address=192.168.0.10/24
+static routers=192.168.0.1
+static domain_name_servers=192.168.0.1
+
+interface wlan0
+
+static ip_address=192.168.0.200/24
+static routers=192.168.0.1
+static domain_name_servers=192.168.0.1
+
+interface = This defines which network interface you are setting the configuration for.
+static ip_address = This is the IP address that you want to set your device to. (Make sure you leave the /24 at the end)
+static routers = This is the IP address of your gateway (probably the IP address or your router)
+static domain_name_servers = This is the IP address of your DNS (probably the IP address of your router). 
+
+g.	Set timezone
+i.	Type tzselect , and answer the questions
+ii.	Add below entry to the end of ~/.proflie file
+TZ='Asia/Kolkata'; export TZ
+
+h.	Mention Switcher script in /home/pi/.config/rc.local
+i.	Mention Starter.py inside /etc.profile as below
+sudo python /home/pi/Starter.py to the end of the file
+j.	Enable remote contro;
+sudo apt-get install xrdp
+
+You can add it to the file .profile or .bashrc or your current shell profile file (located in your home directory). Then, each time you open your shell it will be loaded.
+To change the environmental variable "permanently" you'll need to consider at least these situations:
+1.	Login/Non-login shell
+2.	Interactive/Non-interactive shell
+
+1.	Bash as login shell will load /etc/profile, ~/.bash_profile, ~/.bash_login, ~/.profile in the order
+2.	Bash as non-login interactive shell will load ~/.bashrc
+3.	Bash as non-login non-interactive shell will load the configuration specified in environment variable $BASH_ENV
+
+
+
